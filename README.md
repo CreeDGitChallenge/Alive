@@ -39,8 +39,8 @@ You can start developing by editing the files inside the **app** directory. This
 - .vscode/  
 - app/  
 - assets/  
-- src/
 - tests/  
+- src/  
 - -   entities/  
 - -   maps/  
 - -   scenes/  
