@@ -1,33 +1,55 @@
 // React native
-import {View, StyleSheet } from "react-native";
-// React-native-gesture-handler
+import { StyleSheet } from "react-native";
+// React native gesture handler
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+// Reanimated
+import Animated, { useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 
 export default function Biker () {
-    const tapGesture = Gesture.Tap().onStart(() => {
-    console.log('Tape');
-    })
+    // Object position
+    const translateX = useSharedValue(0);
+    const translateY = useSharedValue(0);
+    const offsetX = useSharedValue(0);
+    const offsetY = useSharedValue(0);
+
+    // Deplacements
+    const panGesture = Gesture.Pan()
+        .onUpdate((event) => {
+            translateX.value = offsetX.value + event.translationX;
+            translateY.value = offsetY.value + event.translationY;
+        })
+        .onEnd(() => {
+        offsetX.value = translateX.value;
+        offsetY.value = translateY.value;
+  });
+    
+    // Animation
+    const animatedStyle = useAnimatedStyle(() => ({
+        transform: [
+            { translateX: translateX.value },
+            { translateY: translateY.value }
+        ]
+    }));
 
     return (
-        <GestureDetector gesture={tapGesture}>
+        <GestureDetector gesture={panGesture}>
             {/* Test object */}
-            {/* <View style = {newColor ? style.ballNewDesign : style.ball}></View> */}
-            <View style = {style.ball}></View>
-            {/* <View style = {style.ballNewDesign}></View> */}
+            <Animated.Image 
+                source={require("../../assets/game/biker/Biker.png")}
+                style = {[style.biker, animatedStyle]} 
+                resizeMode="contain"
+            /> 
         </GestureDetector>
     );
 }
 
 // Style
 const style = StyleSheet.create({
-  ball: {
-    width: 50,
+  biker: {
+    width: 100,
     height: 100,
-    backgroundColor: 'green'
+    borderWidth: 3,
+    borderColor: 'black',
+    borderRadius: 10
   },
-  ballNewDesign: {
-    width: 50,
-    height: 100,
-    backgroundColor: 'blue'
-  }
 })

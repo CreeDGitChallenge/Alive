@@ -1,15 +1,12 @@
 // React native
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View } from "react-native";
 // React-native-gesture-handler
-import { GestureHandlerRootView, GestureDetector, Gesture } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Entities
-import Biker from '../src/entities/biker'
+import Biker from '../src/entities/Biker'
 
 export default function Index() {
-  const tapGesture = Gesture.Tap().onStart(() => {
-    console.log('Tape');
-  })
 
   return (
     <GestureHandlerRootView>
@@ -21,7 +18,7 @@ export default function Index() {
       }}
     >
         {/* Title */}
-        <Text>Test</Text>
+        <Text>Alive</Text>
         <Biker />
 
       </View>
