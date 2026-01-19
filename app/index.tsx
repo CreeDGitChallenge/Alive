@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 // Entities
-import Biker from '../src/entities/Biker'
+import Biker from '../src/entities/biker'
 
 export default function Index() {
 
