@@ -6,6 +6,16 @@ This is a mobile app game project.
 The game's synopsis can be summarized as "A biker trying to survive in Paris".  
 Planned for release on Google Play.
 
+## Expo version
+```js
+"expo": "~54.0.31",
+```
+
+## Dependencies additional (installed in the project)
+```js
+"react-native-gesture-handler": "~2.28.0",
+```
+
 ## Get started
 
 1. Clone the repositorie
