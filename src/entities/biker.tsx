@@ -45,7 +45,7 @@ export default function Biker () {
             const nextX = offsetX.value + event.translationX;
             const nextY = offsetY.value + event.translationY;
 
-            const BIKER = {
+            const BIKER:React = {
                 x: nextX,
                 y: nextY,
                 width: BIKER_SIZE_X,
