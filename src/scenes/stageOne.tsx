@@ -8,6 +8,7 @@ import { useSharedValue, useAnimatedStyle, clamp } from "react-native-reanimated
 // Entities
 import Biker, { BIKERDATA } from '@/src/entities/biker'
 import Obstacle, { OBSTACLE } from "@/src/entities/obstacle"
+import Cursor from "../entities/cursor";
 
 // Scripts
 import { isColliding } from "../scripts/isColliding";
@@ -16,11 +17,12 @@ export default function StageOne () {
     // Sreen dimensions
     const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window")
 
-    // Object position
+    // Biker position
     const translateX = useSharedValue(SCREEN_WIDTH / 2 - BIKERDATA.width / 2);
     const translateY = useSharedValue(SCREEN_HEIGHT / 2 - BIKERDATA.height / 2);
     const offsetX = useSharedValue(translateX.value);
     const offsetY = useSharedValue(translateY.value);
+    // Biker colliding state
     const bikerIsColliding = useSharedValue(false);
 
     // Define position
@@ -33,7 +35,7 @@ export default function StageOne () {
             BIKERDATA.x = nextX
             BIKERDATA.y = nextY
 
-            // Update position if the object is not colliding
+            // Update position if the BIKER is not colliding
             if (!isColliding(BIKERDATA, OBSTACLE) && !bikerIsColliding.value) {
                 // Change the value on X only if not higher than the max screen width
                 translateX.value = clamp(nextX, 0, SCREEN_WIDTH - BIKERDATA.width);
@@ -61,15 +63,30 @@ export default function StageOne () {
         ]
     }));
 
+    // Update the Cursor display
+    const animatedStyleCursor = useAnimatedStyle(() => ({
+        transform: [
+            { translateX: translateX.value - BIKERDATA.width / 2},
+            { translateY: translateY.value + BIKERDATA.height }
+        ]
+    }));
+
     return (
         <View>
+            {/* BIKER ELEMENTS */}
+            {/* Biker */}
+            <Biker 
+                animatedStyle={animatedStyle}
+            />
+            {/* Cursor makes the biker move */}
             <GestureDetector gesture={panGesture}>
-                {/* Biker */}
-                <Biker 
-                    animatedStyle={animatedStyle}
+                {/* Cursor */}
+                <Cursor 
+                    animatedStyle={animatedStyleCursor}
                 />
             </GestureDetector>
 
+            {/* OTHERS ELEMENTS */}
             {/* Obstacle */}
             <Obstacle />
         </View>
