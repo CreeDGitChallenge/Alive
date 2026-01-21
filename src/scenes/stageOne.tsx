@@ -66,7 +66,7 @@ export default function StageOne () {
     // Update the Cursor display
     const animatedStyleCursor = useAnimatedStyle(() => ({
         transform: [
-            { translateX: translateX.value },
+            { translateX: translateX.value - BIKERDATA.width / 2},
             { translateY: translateY.value + BIKERDATA.height }
         ]
     }));

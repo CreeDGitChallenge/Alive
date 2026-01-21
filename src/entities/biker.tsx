@@ -35,7 +35,7 @@ export default function Biker (props: { animatedStyle: AnimatedStyleType }) {
 export const BIKERDATA = {
     x: 0,
     y: 0,
-    width: 70,
+    width: 37,
     height: 70
 }
 
@@ -43,10 +43,7 @@ export const BIKERDATA = {
 const styleBiker = StyleSheet.create({
     biker: {
         position: 'absolute',
-        borderWidth: 3,
         width: BIKERDATA.width,
         height: BIKERDATA.height,
-        borderColor: 'black',
-        borderRadius: 10
     }
 })
