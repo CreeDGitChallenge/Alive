@@ -1,5 +1,6 @@
-// React native
+// React
 import { StyleSheet } from "react-native"
+
 // Reanimated
 import Animated from "react-native-reanimated"
 
@@ -14,15 +15,16 @@ type AnimatedStyleType = {
     })[];
 }
 
-export default function Biker (props: { animatedStyle: AnimatedStyleType }) {
+export default function Cursor (props: { animatedStyle: AnimatedStyleType }) {
+
     const { animatedStyle } = props
 
     return (
         <Animated.Image
-            source={require('@/assets/game/biker/biker.png')}
+            source={require('@/assets/game/cursor/cursor.png')}
             style={
                 [
-                    styleBiker.biker,
+                    styleCursor.cursor,
                     animatedStyle
                 ]
             }
@@ -31,22 +33,17 @@ export default function Biker (props: { animatedStyle: AnimatedStyleType }) {
     )
 }
 
-// Biker data
-export const BIKERDATA = {
+export const CURSORDATA = {
     x: 0,
     y: 0,
-    width: 70,
-    height: 70
+    width: 100,
+    height: 100
 }
 
-// Style
-const styleBiker = StyleSheet.create({
-    biker: {
+const styleCursor = StyleSheet.create({
+    cursor: {
         position: 'absolute',
-        borderWidth: 3,
-        width: BIKERDATA.width,
-        height: BIKERDATA.height,
-        borderColor: 'black',
-        borderRadius: 10
+        width: 70,
+        height: 70
     }
 })
