@@ -53,7 +53,7 @@ export default function StageOne () {
             bikerIsColliding.value = false
         });
 
-    // Update the display
+    // Update the Biker display
     const animatedStyle = useAnimatedStyle(() => ({
         transform: [
             { translateX: translateX.value },
