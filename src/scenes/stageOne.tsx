@@ -3,7 +3,7 @@ import { View, Dimensions } from "react-native";
 // Gesture handler
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 // Reanimed
-import Animated, { useSharedValue, useAnimatedStyle, clamp } from "react-native-reanimated";
+import { useSharedValue, useAnimatedStyle, clamp } from "react-native-reanimated";
 
 // Entities
 import Biker, { BIKERDATA } from '@/src/entities/biker'
