@@ -6,8 +6,8 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useSharedValue, useAnimatedStyle, clamp } from "react-native-reanimated";
 
 // Entities
-import Biker, { BIKERDATA } from '@/src/entities/biker'
-import Obstacle, { OBSTACLE } from "@/src/entities/obstacle"
+import Biker, { BIKERDATA } from "@/src/entities/biker";
+import Obstacle, { OBSTACLE } from "@/src/entities/obstacle";
 import Cursor from "../entities/cursor";
 
 // Scripts
@@ -15,7 +15,7 @@ import { isColliding } from "../scripts/isColliding";
 
 export default function StageOne () {
     // Sreen dimensions
-    const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window")
+    const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
     // Biker position
     const translateX = useSharedValue(SCREEN_WIDTH / 2 - BIKERDATA.width / 2);
@@ -44,15 +44,15 @@ export default function StageOne () {
 
             // Reset Biker position
             } else {
-                translateX.value = SCREEN_WIDTH / 2 - BIKERDATA.width / 2
-                translateY.value = SCREEN_HEIGHT / 2 - BIKERDATA.height / 2
-                bikerIsColliding.value = true
+                translateX.value = SCREEN_WIDTH / 2 - BIKERDATA.width / 2;
+                translateY.value = SCREEN_HEIGHT / 2 - BIKERDATA.height / 2;
+                bikerIsColliding.value = true;
             }
         })
         .onEnd(() => {
             offsetX.value = translateX.value;
             offsetY.value = translateY.value;
-            bikerIsColliding.value = false
+            bikerIsColliding.value = false;
         });
 
     // Update the Biker display
