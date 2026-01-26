@@ -1,9 +1,8 @@
 // React native
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
 // Animated
 import Animated from "react-native-reanimated";
 
-// Types
 type AnimatedStyleType = {
     transform: ({
         translateX: number;
@@ -14,36 +13,38 @@ type AnimatedStyleType = {
     })[];
 }
 
-export default function Obstacle (props: { animatedStyle:AnimatedStyleType }) {
+export default function MapOne (props: {animatedStyle: AnimatedStyleType }) {
     const { animatedStyle } = props
 
     return (
         <Animated.Image
-            source={require('@/assets/game/obstacle/obstacle.png')}
+            source={require('@/assets/game/maps/map-one.png')}
             style={
                 [
-                    styleObstacle.obstacle,
+                    styleMap.map,
                     animatedStyle
                 ]
             }
-            resizeMode={'contain'}
         />
     );
 }
 
 // Obstacle data
-export const OBSTACLE = {
+export const MAP = {
     x: 0,
     y: 0,
-    width: 70,
-    height: 48
+    width: 1024,
+    height: 1536
 };
 
+// Sreen dimension
+const { width: SREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window")
+
 // Style
-const styleObstacle = StyleSheet.create({
-    obstacle: {
+const styleMap = StyleSheet.create({
+    map: {
         position: 'absolute',
-        width: OBSTACLE.width,
-        height: OBSTACLE.height,
+        width: SREEN_WIDTH,
+        height: SCREEN_HEIGHT,
     }
 });
