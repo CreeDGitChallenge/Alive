@@ -35,8 +35,10 @@ export default function Obstacle (props: { animatedStyle:AnimatedStyleType }) {
 export const OBSTACLE = {
     x: 0,
     y: 0,
-    width: 70,
-    height: 48
+    width: 110,
+    height: 75
+    // width: 70,
+    // height: 48
 };
 
 // Style
