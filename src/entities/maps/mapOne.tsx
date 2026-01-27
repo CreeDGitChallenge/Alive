@@ -3,16 +3,6 @@ import { StyleSheet, Dimensions } from "react-native";
 // Animated
 import Animated from "react-native-reanimated";
 
-type AnimatedStyleType = {
-    transform: ({
-        translateX: number;
-        translateY?: undefined;
-    } | {
-        translateY: number;
-        translateX?: undefined;
-    })[];
-}
-
 export default function MapOne (props: {animatedStyle: AnimatedStyleType }) {
     const { animatedStyle } = props
 

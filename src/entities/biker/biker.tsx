@@ -3,17 +3,6 @@ import { StyleSheet } from "react-native"
 // Reanimated
 import Animated from "react-native-reanimated"
 
-// Types
-type AnimatedStyleType = {
-    transform: ({
-        translateX: number;
-        translateY?: undefined;
-    } | {
-        translateY: number;
-        translateX?: undefined;
-    })[];
-}
-
 export default function Biker (props: { animatedStyle: AnimatedStyleType }) {
     const { animatedStyle } = props
 
