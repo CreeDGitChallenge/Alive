@@ -1,17 +1,19 @@
+import { SharedValue } from "react-native-reanimated";
+
 // Types
-type React = {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
+type Entities = {
+    x: SharedValue<number>;
+    y: SharedValue<number>;
+    width: SharedValue<number>;
+    height: SharedValue<number>;
 }
 
-export const isColliding = (a: React, b: React) => {
+export const isColliding = (a: Entities, b: Entities) => {
     "worklet";
     return (
-        a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y
+        a.x.value < b.x.value + b.width.value &&
+        a.x.value + a.width.value > b.x.value &&
+        a.y.value < b.y.value + b.height.value &&
+        a.y.value + a.height.value > b.y.value
     )
 }

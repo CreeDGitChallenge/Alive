@@ -1,38 +1,40 @@
 // React native
-import { StyleSheet } from "react-native"
+import { StyleProp, ImageStyle } from "react-native"
 // Reanimated
-import Animated from "react-native-reanimated"
+import Animated, { useSharedValue } from "react-native-reanimated"
 
-export default function Biker (props: { animatedStyle: AnimatedStyleType }) {
-    const { animatedStyle } = props
+// Type
+type PropsType = {
+    animatedStyle: AnimatedStyleType,
+    styleSheet: StyleProp<ImageStyle>
+};
+export default function Biker ({ animatedStyle, styleSheet }: PropsType) {
 
     return (
         <Animated.Image
             source={require('@/assets/game/biker/biker.png')}
             style={
                 [
-                    styleBiker.biker,
+                    styleSheet,
                     animatedStyle
                 ]
             }
             resizeMode={'contain'}
         />
     )
+    
 }
-
 // Biker data
-export const BIKERDATA = {
-    x: 0,
-    y: 0,
-    width: 37,
-    height: 70
-}
-
-// Style
-const styleBiker = StyleSheet.create({
-    biker: {
-        position: 'absolute',
-        width: BIKERDATA.width,
-        height: BIKERDATA.height,
+export const BikerData = (
+    setX = 0,
+    setY = 0,
+    setWidth = 37,
+    setHeight = 70
+) => {
+    return {
+        x: useSharedValue(setX),
+        y: useSharedValue(setY),
+        width: useSharedValue(setWidth),
+        height: useSharedValue(setHeight)
     }
-})
+}

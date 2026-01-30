@@ -6,61 +6,82 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useSharedValue, clamp } from "react-native-reanimated";
 
 // Entities
-import Biker, { BIKERDATA } from "@/src/entities/biker/biker";
-import Obstacle, { OBSTACLE } from "@/src/entities/obstacle/obstacle";
-import Cursor from "@/src/entities/cursor/cursor";
-import MapOne from "@/src/entities/maps/mapOne";
+import Biker, { BikerData } from "@/src/entities/biker/biker";
+import Obstacle, { ObstacleData } from "@/src/entities/obstacle/obstacle";
+import Cursor, { CursorData } from "@/src/entities/cursor/cursor";
+import MapOne, { MapOneData } from "@/src/entities/maps/mapOne";
 
 // Entities animated
-import { AnimatedBiker } from "../entities/biker/animatedBiker";
-import { AnimatedCursor } from "../entities/cursor/animatedCursor";
-import { AnimatedObstacle, AnimatedObstacleTwo } from "../entities/obstacle/animatedObstacle";
-import { AnimatedMap, AnimatedMapTree, AnimatedMapTwo } from "../entities/maps/animatedMap";
+import { AnimatedBiker } from "@/src/entities/biker/animatedBiker";
+import { AnimatedCursor } from "@/src/entities/cursor/animatedCursor";
+import { AnimatedObstacle } from "@/src/entities/obstacle/animatedObstacle";
+import { AnimatedMap } from "@/src/entities/maps/animatedMap";
+
+// StyleSheet
+import { styleSheetObstacle } from "@/src/entities/obstacle/styleSheetObstacle";
+import { styleSheetMap } from "../entities/maps/styleSheetMap";
+import { styleSheetCursor } from "../entities/cursor/styleSheetCursor";
+import { styleSheetBiker } from "../entities/biker/styleSheetBiker";
+
+// Obstacle actions
+import { movementAndReset } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
 
 // Scripts
-import { isColliding } from "../scripts/isColliding";
-import { randomNumber } from "../scripts/randomNumber";
+import { isColliding } from "@/src/scripts/isColliding";
 
 export default function StageOne () {
     // Sreen dimensions
     // ...
     const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-    // Initialization Biker position 
+    // Initialization Biker 
     // ...
-    const translateBikerX = useSharedValue(SCREEN_WIDTH / 2 - BIKERDATA.width / 2);
-    const translateBikerY = useSharedValue(SCREEN_HEIGHT / 2 - BIKERDATA.height / 2);
+    const bikerOneObj = BikerData();
+    const bikerStyle = styleSheetBiker(bikerOneObj);
+    const translateBikerX = useSharedValue(SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2);
+    const translateBikerY = useSharedValue(SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2);
     const offsetX = useSharedValue(translateBikerX.value);
     const offsetY = useSharedValue(translateBikerY.value);
     // Redefine Biker X and Y
-    BIKERDATA.x = translateBikerX.value;
-    BIKERDATA.y = translateBikerY.value;
-    // Maps position
+    bikerOneObj.x.value = translateBikerX.value;
+    bikerOneObj.y.value = translateBikerY.value;
+    // Initialization Cursor
+    const cursorObj = CursorData();
+    const cusrsorStyle = styleSheetCursor(cursorObj);
+
+    // Initialization Maps
     // ...
+    const mapOneObj = MapOneData(undefined, undefined, SCREEN_WIDTH, SCREEN_HEIGHT);
+    const mapOneStyle = styleSheetMap(mapOneObj);
+    const mapTwoObj = MapOneData(undefined, undefined, SCREEN_WIDTH, SCREEN_HEIGHT);
+    const mapTwoStyle = styleSheetMap(mapTwoObj);
+    const mapTreeObj = MapOneData(undefined, undefined, SCREEN_WIDTH, SCREEN_HEIGHT);
+    const mapTreeStyle = styleSheetMap(mapTreeObj);
     const translateMapX = useSharedValue(0);
     const translateMapY = useSharedValue(0);
     const translateMapTwoX = useSharedValue(0);
     const translateMapTwoY = useSharedValue(-SCREEN_HEIGHT);
     const translateMapTreeX = useSharedValue(0);
     const translateMapTreeY = useSharedValue(-SCREEN_HEIGHT * 2);
-    // Obstacles position
+    // Initialization Obstacles
     // ...
-    const OBSTACLEPOSITION = [
-        { x: 0, y: 0 },
-        { x: (SCREEN_WIDTH / 2) - (OBSTACLE.width / 2), y: 0 },
-        { x: SCREEN_WIDTH - OBSTACLE.width, y: 0 },
-    ];
+    // Obstacle 1
+    const obstacleOneObj = ObstacleData();
+    const obstacleOneStyle = styleSheetObstacle(obstacleOneObj); // Style
     const translateObstacleX = useSharedValue(0);
     const translateObstacleY = useSharedValue(0);
+    // Define some positions
+    const OBSTACLEPOSITION = [
+        { x: 0, y: 0 },
+        { x: (SCREEN_WIDTH / 2) - (obstacleOneObj.width.value / 2), y: 0 },
+        { x: SCREEN_WIDTH - obstacleOneObj.width.value, y: 0 }
+    ];
+    // Obstacle 2
+    const obstacleTwoObj = ObstacleData(OBSTACLEPOSITION[2].x, -400); // Positions and size
+    const obstacleTwoStyle = styleSheetObstacle(obstacleTwoObj); // Style
     const translateObstacleTwoX = useSharedValue(OBSTACLEPOSITION[2].x);
     const translateObstacleTwoY = useSharedValue(-400);
-    const OBSTACLETWO = {
-        x: OBSTACLEPOSITION[1].x,
-        y: -400,
-        width: OBSTACLE.width,
-        height: OBSTACLE.height
-    };
 
-    // Touch event
+    // Touch event (game player)
     // ...
     const panGesture = Gesture.Pan()
         .onUpdate((event) => {
@@ -68,14 +89,14 @@ export default function StageOne () {
             const nextX = offsetX.value + event.translationX;
             const nextY = offsetY.value + event.translationY;
 
-            // Redefine x and y position's biker
-            BIKERDATA.x = nextX;
-            BIKERDATA.y = nextY;
+            // Redefine position's biker (x and y)
+            bikerOneObj.x.value = nextX;
+            bikerOneObj.y.value = nextY;
 
             // Change the value on X only if not higher than the max screen width
-            translateBikerX.value = clamp(nextX, 0, SCREEN_WIDTH - BIKERDATA.width);
-            // Change the value on Y only if not higher than the max screen width
-            translateBikerY.value = clamp(nextY, 0, SCREEN_HEIGHT - BIKERDATA.height);
+            translateBikerX.value = clamp(nextX, 0, SCREEN_WIDTH - bikerOneObj.width.value);
+            // Change the value on Y only if not higher than the max screen height
+            translateBikerY.value = clamp(nextY, 0, SCREEN_HEIGHT - bikerOneObj.height.value);
         })
         .onEnd(() => {
             offsetX.value = translateBikerX.value;
@@ -84,123 +105,90 @@ export default function StageOne () {
 
     // Animated style
     // ...
-    // Update the Biker display
+    // Define the Biker position display
     const animatedStyleBiker = AnimatedBiker(translateBikerX, translateBikerY);
-    // Update the Cursor display
-    const animatedStyleCursor = AnimatedCursor(translateBikerX, translateBikerY, BIKERDATA);
-    // Update obstacle 1 display
+    // Define the Cursor position display
+    const animatedStyleCursor = AnimatedCursor(translateBikerX, translateBikerY, bikerOneObj);
+    // Define obstacle 1 position display
     const animatedObstacle = AnimatedObstacle(translateObstacleX, translateObstacleY);
-    // Update obstacle 2 display
-    const animatedObstacleTwo = AnimatedObstacleTwo(translateObstacleTwoX, translateObstacleTwoY);
-    // Update Map 1 display
+    // Define obstacle 2 position display
+    const animatedObstacleTwo = AnimatedObstacle(translateObstacleTwoX, translateObstacleTwoY);
+    // Define Map 1 position display
     const animatedMap = AnimatedMap(translateMapX, translateMapY);
-    // Update Map 2 display
-    const animatedMapTwo = AnimatedMapTwo(translateMapTwoX, translateMapTwoY);
-
-    // Update Map 3 display
-    const animatedMapTree = AnimatedMapTree(translateMapTreeX, translateMapTreeY);
+    // Define Map 2 position display
+    const animatedMapTwo = AnimatedMap(translateMapTwoX, translateMapTwoY);
+    // Define Map 3 position display
+    const animatedMapTree = AnimatedMap(translateMapTreeX, translateMapTreeY);
 
     // Game loop "handmade"
     // ...
     function loop () {
+        // Scrolling speed
         const SPEED = 70;
 
+        // - MAP: RESET / MOVEMENT -
         // Maps reset
         if (translateMapY.value >= SCREEN_HEIGHT) {
             // Define a gap
             const gap = translateMapY.value - SCREEN_HEIGHT;
 
-            // Reset
+            // Apply Reset
             translateMapTreeY.value = (-SCREEN_HEIGHT)*2 + gap + SPEED;
             translateMapTwoY.value = (-SCREEN_HEIGHT) + gap + SPEED;
             translateMapY.value = 0 + gap + SPEED;
 
         // Maps movements
         } else {
-            translateMapTreeY.value = translateMapTreeY.value +SPEED;
-            translateMapTwoY.value = translateMapTwoY.value +SPEED;
-            translateMapY.value = translateMapY.value +SPEED;
+            // Apply movements
+            translateMapTreeY.value = translateMapTreeY.value + SPEED;
+            translateMapTwoY.value = translateMapTwoY.value + SPEED;
+            translateMapY.value = translateMapY.value + SPEED;
         }
-        // ---
-        // Obstacle one reset
-        if (translateObstacleY.value >= SCREEN_HEIGHT) {
-            // Random number
-            const randNumb = randomNumber(3); // Min 0, Max 2
-            translateObstacleX.value = OBSTACLEPOSITION[randNumb].x;
-            translateObstacleY.value = 0;
-        // Obstacle one movements
-        } else {
-            translateObstacleY.value = translateObstacleY.value +SPEED;
-        }
-        // ---
-        // Obstacle two reset
-        if (translateObstacleTwoY.value >= SCREEN_HEIGHT) {
-            // Random number
-            const randNumbTwo = randomNumber(3); // Min 0, Max 2
-            translateObstacleTwoX.value = OBSTACLEPOSITION[randNumbTwo].x;
-            translateObstacleTwoY.value = 0;
-        // Obstacle two movements
-        } else {
-            translateObstacleTwoY.value = translateObstacleTwoY.value +SPEED;
-        }
-        // ---
-        // Redefine Obstacles new position
-        OBSTACLE.x = translateObstacleX.value;
-        OBSTACLE.y = translateObstacleY.value;
-        OBSTACLETWO.x = translateObstacleTwoX.value;
-        OBSTACLETWO.y = translateObstacleTwoY.value;
 
-        // Get Biker data (we need this for the colliding detection)
-        const GETBIKERDATA = {
-            x: translateBikerX.value,
-            y: translateBikerY.value,
-            width: BIKERDATA.width,
-            height: BIKERDATA.height
-        };
+        // - OBSTACLE: RESET / MOVEMENT -
+        // Movement and reset for obstacle 1
+        movementAndReset(translateObstacleY, translateObstacleX, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED);
+        // Movement and reset for obstacle 2
+        movementAndReset(translateObstacleTwoY, translateObstacleTwoX, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED);
+
+        // Redefine Obstacles position
+        obstacleOneObj.x.value = translateObstacleX.value;
+        obstacleOneObj.y.value = translateObstacleY.value;
+        obstacleTwoObj.x.value = translateObstacleTwoX.value;
+        obstacleTwoObj.y.value = translateObstacleTwoY.value;
+
         // Biker is collinding on obstacle one
-        if (isColliding(GETBIKERDATA, OBSTACLE)) {
+        if (isColliding(bikerOneObj, obstacleOneObj)) {
             // Stop gameLoop
             clearInterval(gameLoop);
 
         // Biker is collinding on obstacle two
-        } else if (isColliding(GETBIKERDATA, OBSTACLETWO)) {
+        } else if (isColliding(bikerOneObj, obstacleTwoObj)) {
+            // Stop gameLoop
             clearInterval(gameLoop);
         }
     }
-
     // Game loop initialization
     const gameLoop = setInterval(loop, 100);
 
     return (
         <View>
             {/* MAP ELEMENTS*/}
-            <MapOne animatedStyle={animatedMap} />
-            <MapOne 
-            animatedStyle={animatedMapTree}
-            />
-            <MapOne 
-                animatedStyle={animatedMapTwo}
-            />
+            <MapOne animatedStyle={animatedMap} styleSheet={mapOneStyle.map} />
+            <MapOne animatedStyle={animatedMapTree} styleSheet={mapTwoStyle.map} />
+            <MapOne animatedStyle={animatedMapTwo} styleSheet={mapTreeStyle.map} />
 
-            {/* BIKER ELEMENTS */}
+            {/* PLAYER ELEMENTS */}
             {/* Biker */}
-            <Biker 
-                animatedStyle={animatedStyleBiker}
-            />
-            {/* Cursor makes the biker move */}
+            <Biker animatedStyle={animatedStyleBiker} styleSheet={bikerStyle.biker} />
+            {/* Cursor (makes the biker move) */}
             <GestureDetector gesture={panGesture}>
-                <Cursor 
-                    animatedStyle={animatedStyleCursor}
-                />
+                <Cursor animatedStyle={animatedStyleCursor} styleSheet={cusrsorStyle.cursor} />
             </GestureDetector>
 
             {/* OBSTACLE ELEMENTS */}
-            <Obstacle 
-                animatedStyle={animatedObstacle}
-            />
-            <Obstacle 
-                animatedStyle={animatedObstacleTwo}
-            />
+            <Obstacle animatedStyle={animatedObstacle} styleSheet={obstacleOneStyle.obstacle} />
+            <Obstacle animatedStyle={animatedObstacleTwo} styleSheet={obstacleTwoStyle.obstacle} />
         </View>
     );
 }
