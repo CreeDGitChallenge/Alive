@@ -15,17 +15,3 @@ export const AnimatedObstacle = (
     }));
     return animatedStyleObstacle;
 }
-
-// Obstacle 2
-export const AnimatedObstacleTwo = (
-    translateObstacleTwoX: SharedValue<number>,
-    translateObstacleTwoY: SharedValue<number>
-) => {
-    const animatedStyleObstacleTwo = useAnimatedStyle(() => ({
-        transform: [
-            { translateX: translateObstacleTwoX.value },
-            { translateY: translateObstacleTwoY.value }
-        ]
-    }));
-    return animatedStyleObstacleTwo
-}

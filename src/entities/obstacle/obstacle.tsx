@@ -1,17 +1,22 @@
 // React native
-import { StyleSheet } from "react-native";
+import { StyleProp, ImageStyle } from "react-native";
 // Animated
-import Animated from "react-native-reanimated";
+import Animated, { useSharedValue } from "react-native-reanimated";
 
-export default function Obstacle (props: { animatedStyle:AnimatedStyleType }) {
-    const { animatedStyle } = props
+type Props = {
+    animatedStyle: AnimatedStyleType
+    styleSheet: StyleProp<ImageStyle>
+}
 
+export default function Obstacle (
+    { animatedStyle, styleSheet }: Props
+) {
     return (
         <Animated.Image
             source={require('@/assets/game/obstacle/obstacle.png')}
             style={
                 [
-                    styleObstacle.obstacle,
+                    styleSheet,
                     animatedStyle
                 ]
             }
@@ -21,20 +26,16 @@ export default function Obstacle (props: { animatedStyle:AnimatedStyleType }) {
 }
 
 // Obstacle data
-export const OBSTACLE = {
-    x: 0,
-    y: 0,
-    width: 110,
-    height: 75
-    // width: 70,
-    // height: 48
-};
-
-// Style
-const styleObstacle = StyleSheet.create({
-    obstacle: {
-        position: 'absolute',
-        width: OBSTACLE.width,
-        height: OBSTACLE.height,
+export const ObstacleData = (
+    setX = 0,
+    setY = 0,
+    setWidth = 110,
+    setHeight = 75
+) => {
+    return {
+        x: useSharedValue(setX),
+        y: useSharedValue(setY),
+        width: useSharedValue(setWidth),
+        height: useSharedValue(setHeight)
     }
-});
+}

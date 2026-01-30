@@ -1,17 +1,20 @@
 // React native
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleProp, ImageStyle } from "react-native";
 // Animated
-import Animated from "react-native-reanimated";
+import Animated, { useSharedValue } from "react-native-reanimated";
 
-export default function MapOne (props: {animatedStyle: AnimatedStyleType }) {
-    const { animatedStyle } = props
-
+// Type
+type PropsType = {
+    animatedStyle: AnimatedStyleType,
+    styleSheet: StyleProp<ImageStyle>
+};
+export default function MapOne ({ animatedStyle, styleSheet }: PropsType) {
     return (
         <Animated.Image
             source={require('@/assets/game/maps/map-one.png')}
             style={
                 [
-                    styleMap.map,
+                    styleSheet,
                     animatedStyle
                 ]
             }
@@ -20,21 +23,16 @@ export default function MapOne (props: {animatedStyle: AnimatedStyleType }) {
 }
 
 // Obstacle data
-export const MAP = {
-    x: 0,
-    y: 0,
-    width: 1024,
-    height: 1536
-};
-
-// Sreen dimension
-const { width: SREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window")
-
-// Style
-const styleMap = StyleSheet.create({
-    map: {
-        position: 'absolute',
-        width: SREEN_WIDTH,
-        height: SCREEN_HEIGHT,
+export const MapOneData = (
+    setX = 0,
+    setY = 0,
+    setWidth = 1024,
+    setHeight = 1536
+) => {
+    return {
+        x: useSharedValue(setX),
+        y: useSharedValue(setY),
+        width: useSharedValue(setWidth),
+        height: useSharedValue(setHeight)
     }
-});
+}

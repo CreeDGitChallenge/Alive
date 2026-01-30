@@ -1,19 +1,22 @@
 // React
-import { StyleSheet } from "react-native"
+import { StyleProp, ImageStyle } from "react-native"
 
 // Reanimated
-import Animated from "react-native-reanimated"
+import Animated, { useSharedValue } from "react-native-reanimated"
 
-export default function Cursor (props: { animatedStyle: AnimatedStyleType }) {
-
-    const { animatedStyle } = props
+// Type
+type PropsType = {
+    animatedStyle: AnimatedStyleType,
+    styleSheet: StyleProp<ImageStyle>
+};
+export default function Cursor ({ animatedStyle, styleSheet }: PropsType) {
 
     return (
         <Animated.Image
             source={require('@/assets/game/cursor/cursor.png')}
             style={
                 [
-                    styleCursor.cursor,
+                    styleSheet,
                     animatedStyle
                 ]
             }
@@ -22,17 +25,17 @@ export default function Cursor (props: { animatedStyle: AnimatedStyleType }) {
     )
 }
 
-export const CURSORDATA = {
-    x: 0,
-    y: 0,
-    width: 100,
-    height: 100
-}
-
-const styleCursor = StyleSheet.create({
-    cursor: {
-        position: 'absolute',
-        width: 70,
-        height: 70
+// Cursor data
+export const CursorData = (
+    setX = 0,
+    setY = 0,
+    setWidth = 70,
+    setHeight = 70
+) => {
+    return {
+        x: useSharedValue(setX),
+        y: useSharedValue(setY),
+        width: useSharedValue(setWidth),
+        height: useSharedValue(setHeight)
     }
-})
+}
