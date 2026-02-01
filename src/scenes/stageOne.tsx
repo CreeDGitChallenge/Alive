@@ -24,8 +24,9 @@ import { styleSheetBiker } from "@/src/entities/biker/styleSheetBiker";
 import { styleSheetBicycle } from "../entities/bicyclePath/styleSheetBicycle";
 
 // Obstacle actions
-import { movementAndReset } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
-
+import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
+// Maps Actions
+import { movementAndResetMap } from "@/src/entities/maps/mapsActions/mapsActions";
 // Scripts
 import { isColliding } from "@/src/scripts/isColliding";
 
@@ -61,8 +62,6 @@ export default function StageOne () {
     const mapOneStyle = styleSheetMap(mapOneObj);
     const mapTwoObj = MapOneData(undefined, -SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
     const mapTwoStyle = styleSheetMap(mapTwoObj);
-    const mapTreeObj = MapOneData(undefined, -SCREEN_HEIGHT * 2, SCREEN_WIDTH, SCREEN_HEIGHT);
-    const mapTreeStyle = styleSheetMap(mapTreeObj);
 
     // Initialize Bicycle path
     // ...
@@ -77,7 +76,7 @@ export default function StageOne () {
     // Initialization Obstacles
     // ...
     // Obstacle 1
-    const obstacleOneObj = ObstacleData();
+    const obstacleOneObj = ObstacleData(undefined, -SCREEN_HEIGHT / 3);
     const obstacleOneStyle = styleSheetObstacle(obstacleOneObj); // Style
 
     // Define some positions (used for reposition random obstacles)
@@ -87,8 +86,11 @@ export default function StageOne () {
         { x: SCREEN_WIDTH - obstacleOneObj.width.value, y: 0 }
     ];
     // Obstacle 2
-    const obstacleTwoObj = ObstacleData(OBSTACLEPOSITION[2].x, -400); // Positions and size
+    const obstacleTwoObj = ObstacleData(OBSTACLEPOSITION[2].x, (-SCREEN_HEIGHT / 3)*2); // Positions and size
     const obstacleTwoStyle = styleSheetObstacle(obstacleTwoObj); // Style
+    // Obstacle 3
+    const obstacleTreeObj = ObstacleData(OBSTACLEPOSITION[0].x, (-SCREEN_HEIGHT / 3)*3); // Positions and size
+    const obstacleTreeStyle = styleSheetObstacle(obstacleTreeObj); // Style
 
     // Touch event (game player)
     // ...
@@ -118,14 +120,15 @@ export default function StageOne () {
     const animatedObstacle = AnimatedGlobal(obstacleOneObj.x, obstacleOneObj.y);
     // Define obstacle 2 position display
     const animatedObstacleTwo = AnimatedGlobal(obstacleTwoObj.x, obstacleTwoObj.y);
+    // Define obstacle 3 position display
+    const animatedObstacleTree = AnimatedGlobal(obstacleTreeObj.x, obstacleTreeObj.y);
     // Define Map 1 position display
     const animatedMap = AnimatedGlobal(mapOneObj.x, mapOneObj.y);
     // Define Map 2 position display
     const animatedMapTwo = AnimatedGlobal(mapTwoObj.x, mapTwoObj.y);
-    // Define Map 3 position display
-    const animatedMapTree = AnimatedGlobal(mapTreeObj.x, mapTreeObj.y);
-    // Define Bicyle path position display
+    // Define Bicyle path 1 position display
     const animatedBicyclePath = AnimatedGlobal(bicyclePathObj.x, bicyclePathObj.y);
+    // Define Bicyle path 2 position display
     const animatedBicycleTwoPath = AnimatedGlobal(bicyclePathTwoObj.x, bicyclePathTwoObj.y);
 
     // Game loop
@@ -147,40 +150,29 @@ export default function StageOne () {
         lastFrameTime.value = frame.timestamp;
 
         // - MAP AND BICYCLE PATH: RESET / MOVEMENT -
-        // Maps reset
-        if (mapOneObj.y.value >= SCREEN_HEIGHT) {
-            // Define the gap
-            const gap = mapOneObj.y.value - SCREEN_HEIGHT;
-
-            // Apply Reset on map
-            mapTreeObj.y.value = (-SCREEN_HEIGHT) * 2 + (SPEED * delta) + gap;
-            mapTwoObj.y.value = (-SCREEN_HEIGHT) + (SPEED * delta) + gap;
-            mapOneObj.y.value = (SPEED * delta) + gap;
-
-            // Apply Reset on bicycle path
-            bicyclePathTwoObj.y.value = (-SCREEN_HEIGHT) +(SPEED * delta) + gap;
-            bicyclePathObj.y.value = (SPEED * delta) + gap;
-
-        // Maps movements
-        } else {
-            // Apply scroll
-            // Map
-            mapOneObj.y.value += SPEED * delta;
-            mapTwoObj.y.value += SPEED * delta;
-            mapTreeObj.y.value += SPEED * delta;
-            // Bicycle path
-            bicyclePathObj.y.value += SPEED * delta;
-            bicyclePathTwoObj.y.value += SPEED * delta;
-        }
+        movementAndResetMap(
+            mapOneObj, 
+            mapTwoObj, 
+            bicyclePathObj,
+            bicyclePathTwoObj,
+            SCREEN_HEIGHT,
+            SPEED,
+            delta
+        );
 
         // - OBSTACLE: RESET / MOVEMENT -
         // Movement and reset for obstacle 1
-        movementAndReset(obstacleOneObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
+        movementAndResetObst(obstacleOneObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
         // Movement and reset for obstacle 2
-        movementAndReset(obstacleTwoObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
+        movementAndResetObst(obstacleTwoObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
+        // Movement and reset for obstacle 3
+        movementAndResetObst(obstacleTreeObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
 
         // Biker is collinding on obstacle one or obstacle two
-        if (isColliding(bikerOneObj, obstacleOneObj) || isColliding(bikerOneObj, obstacleTwoObj)) {
+        if (isColliding(bikerOneObj, obstacleOneObj) 
+            || isColliding(bikerOneObj, obstacleTwoObj)
+            || isColliding(bikerOneObj, obstacleTreeObj)
+        ) {
             // Stop gameLoop
             gameState.value = 0;
         }
@@ -190,14 +182,15 @@ export default function StageOne () {
         <View>
             {/* MAP ELEMENTS*/}
             <MapOne animatedStyle={animatedMap} styleSheet={mapOneStyle.map} />
-            <MapOne animatedStyle={animatedMapTwo} styleSheet={mapTreeStyle.map} />
-            <MapOne animatedStyle={animatedMapTree} styleSheet={mapTwoStyle.map} />
+            <MapOne animatedStyle={animatedMapTwo} styleSheet={mapTwoStyle.map} />
+            {/* <MapOne animatedStyle={animatedMapTree} styleSheet={mapTreeStyle.map} /> */}
             <BicylePath animatedStyle={animatedBicyclePath} styleSheet={bicyclePathObjStyle.bicycle} />
             <BicylePath animatedStyle={animatedBicycleTwoPath} styleSheet={bicyclePathTwoObjStyle.bicycle} />
 
             {/* OBSTACLE ELEMENTS */}
             <Obstacle animatedStyle={animatedObstacle} styleSheet={obstacleOneStyle.obstacle} />
             <Obstacle animatedStyle={animatedObstacleTwo} styleSheet={obstacleTwoStyle.obstacle} />
+            <Obstacle animatedStyle={animatedObstacleTree} styleSheet={obstacleTreeStyle.obstacle} />
 
             {/* PLAYER ELEMENTS */}
             {/* Biker */}

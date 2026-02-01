@@ -7,15 +7,15 @@ type ObstacleType = {
     width: SharedValue<number>;
     height: SharedValue<number>;
 }
-type obstaclePositionType = {
+type ObstaclePositionType = {
     x: number;
     y: number;
 }[];
 // - OBSTACLE: RESET / MOVEMENT -
-export const movementAndReset = (
+export const movementAndResetObst = (
     obstacle: ObstacleType,
     screenHeight: number,
-    obstaclePosition: obstaclePositionType,
+    obstaclePosition: ObstaclePositionType,
     SPEED: number
 ) => {
     'worklet';
