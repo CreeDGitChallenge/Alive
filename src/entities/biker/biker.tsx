@@ -22,7 +22,6 @@ export default function Biker ({ animatedStyle, styleSheet }: PropsType) {
             resizeMode={'contain'}
         />
     )
-    
 }
 // Biker data
 export const BikerData = (

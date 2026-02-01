@@ -5,21 +5,21 @@ import { StyleSheet } from "react-native";
 import { SharedValue } from "react-native-reanimated";
 
 // Types
-type MapType = {
+type BicycleType = {
     x: SharedValue<number>;
     y: SharedValue<number>;
     width: SharedValue<number>;
     height: SharedValue<number>;
 }
 
-export const styleSheetMap = (map: MapType) => {
+export const styleSheetBicycle = (bicyclePath: BicycleType) => {
     // Style
-    const styleMap = StyleSheet.create({
-        map: {
+    const styleBicyclePath = StyleSheet.create({
+        bicycle: {
             position: 'absolute',
-            width: map.width.value,
-            height: map.height.value,
+            width: bicyclePath.width.value,
+            height: bicyclePath.height.value,
         }
     });
-    return styleMap;
+    return styleBicyclePath;
 };

@@ -10,18 +10,18 @@ import Biker, { BikerData } from "@/src/entities/biker/biker";
 import Obstacle, { ObstacleData } from "@/src/entities/obstacle/obstacle";
 import Cursor, { CursorData } from "@/src/entities/cursor/cursor";
 import MapOne, { MapOneData } from "@/src/entities/maps/mapOne";
+import BicylePath, { BicyclePatchData } from "@/src/entities/bicyclePath/bicylePath";
 
 // Entities animated
-import { AnimatedBiker } from "@/src/entities/biker/animatedBiker";
+import { AnimatedGlobal } from "../animated/animatedGlobal";
 import { AnimatedCursor } from "@/src/entities/cursor/animatedCursor";
-import { AnimatedObstacle } from "@/src/entities/obstacle/animatedObstacle";
-import { AnimatedMap } from "@/src/entities/maps/animatedMap";
 
 // StyleSheet
 import { styleSheetObstacle } from "@/src/entities/obstacle/styleSheetObstacle";
-import { styleSheetMap } from "../entities/maps/styleSheetMap";
-import { styleSheetCursor } from "../entities/cursor/styleSheetCursor";
-import { styleSheetBiker } from "../entities/biker/styleSheetBiker";
+import { styleSheetMap } from "@/src/entities/maps/styleSheetMap";
+import { styleSheetCursor } from "@/src/entities/cursor/styleSheetCursor";
+import { styleSheetBiker } from "@/src/entities/biker/styleSheetBiker";
+import { styleSheetBicycle } from "../entities/bicyclePath/styleSheetBicycle";
 
 // Obstacle actions
 import { movementAndReset } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
@@ -36,8 +36,8 @@ export default function StageOne () {
     
     // Game loop default value
     // ...
-    const gameState = useSharedValue(1); // 1 -> Start the loop, 0 -> stop the loop
-    const lastFrameTime = useSharedValue<number | null>(null); // Needed for calculate deltaTime
+    const gameState = useSharedValue(1); // 1 -> Start the loop, 0 -> Stop the loop
+    const lastFrameTime = useSharedValue<number | null>(null); // Needed for deltaTime calculation
     const SPEED = 400; // Game speed
 
     // Initialization Biker 
@@ -49,7 +49,9 @@ export default function StageOne () {
     bikerOneObj.y.value = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
     const offsetX = useSharedValue(SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2);
     const offsetY = useSharedValue(SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2);
+
     // Initialization Cursor
+    // ...
     const cursorObj = CursorData();
     const cusrsorStyle = styleSheetCursor(cursorObj);
 
@@ -61,6 +63,16 @@ export default function StageOne () {
     const mapTwoStyle = styleSheetMap(mapTwoObj);
     const mapTreeObj = MapOneData(undefined, -SCREEN_HEIGHT * 2, SCREEN_WIDTH, SCREEN_HEIGHT);
     const mapTreeStyle = styleSheetMap(mapTreeObj);
+
+    // Initialize Bicycle path
+    // ...
+    // Bicycle path one
+    const bicyclePathObj = BicyclePatchData(undefined, undefined, undefined, SCREEN_HEIGHT);
+    bicyclePathObj.x.value = SCREEN_WIDTH - bicyclePathObj.width.value;
+    const bicyclePathObjStyle = styleSheetBicycle(bicyclePathObj);
+    // Bicycle path Two
+    const bicyclePathTwoObj = BicyclePatchData(SCREEN_WIDTH - bicyclePathObj.width.value, -SCREEN_HEIGHT, undefined, SCREEN_HEIGHT);
+    const bicyclePathTwoObjStyle = styleSheetBicycle(bicyclePathTwoObj);
 
     // Initialization Obstacles
     // ...
@@ -99,19 +111,22 @@ export default function StageOne () {
     // Animated style
     // ...
     // Define the Biker position display
-    const animatedStyleBiker = AnimatedBiker(bikerOneObj.x, bikerOneObj.y);
+    const animatedStyleBiker = AnimatedGlobal(bikerOneObj.x, bikerOneObj.y);
     // Define the Cursor position display
     const animatedStyleCursor = AnimatedCursor(bikerOneObj);
     // Define obstacle 1 position display
-    const animatedObstacle = AnimatedObstacle(obstacleOneObj.x, obstacleOneObj.y);
+    const animatedObstacle = AnimatedGlobal(obstacleOneObj.x, obstacleOneObj.y);
     // Define obstacle 2 position display
-    const animatedObstacleTwo = AnimatedObstacle(obstacleTwoObj.x, obstacleTwoObj.y);
+    const animatedObstacleTwo = AnimatedGlobal(obstacleTwoObj.x, obstacleTwoObj.y);
     // Define Map 1 position display
-    const animatedMap = AnimatedMap(mapOneObj.x, mapOneObj.y);
+    const animatedMap = AnimatedGlobal(mapOneObj.x, mapOneObj.y);
     // Define Map 2 position display
-    const animatedMapTwo = AnimatedMap(mapTwoObj.x, mapTwoObj.y);
+    const animatedMapTwo = AnimatedGlobal(mapTwoObj.x, mapTwoObj.y);
     // Define Map 3 position display
-    const animatedMapTree = AnimatedMap(mapTreeObj.x, mapTreeObj.y);
+    const animatedMapTree = AnimatedGlobal(mapTreeObj.x, mapTreeObj.y);
+    // Define Bicyle path position display
+    const animatedBicyclePath = AnimatedGlobal(bicyclePathObj.x, bicyclePathObj.y);
+    const animatedBicycleTwoPath = AnimatedGlobal(bicyclePathTwoObj.x, bicyclePathTwoObj.y);
 
     // Game loop
     useFrameCallback((frame) => {
@@ -131,23 +146,31 @@ export default function StageOne () {
         );
         lastFrameTime.value = frame.timestamp;
 
-        // - MAP: RESET / MOVEMENT -
+        // - MAP AND BICYCLE PATH: RESET / MOVEMENT -
         // Maps reset
         if (mapOneObj.y.value >= SCREEN_HEIGHT) {
             // Define the gap
             const gap = mapOneObj.y.value - SCREEN_HEIGHT;
 
-            // Apply Reset
+            // Apply Reset on map
             mapTreeObj.y.value = (-SCREEN_HEIGHT) * 2 + (SPEED * delta) + gap;
             mapTwoObj.y.value = (-SCREEN_HEIGHT) + (SPEED * delta) + gap;
             mapOneObj.y.value = (SPEED * delta) + gap;
 
+            // Apply Reset on bicycle path
+            bicyclePathTwoObj.y.value = (-SCREEN_HEIGHT) +(SPEED * delta) + gap;
+            bicyclePathObj.y.value = (SPEED * delta) + gap;
+
         // Maps movements
         } else {
             // Apply scroll
+            // Map
             mapOneObj.y.value += SPEED * delta;
             mapTwoObj.y.value += SPEED * delta;
             mapTreeObj.y.value += SPEED * delta;
+            // Bicycle path
+            bicyclePathObj.y.value += SPEED * delta;
+            bicyclePathTwoObj.y.value += SPEED * delta;
         }
 
         // - OBSTACLE: RESET / MOVEMENT -
@@ -169,6 +192,8 @@ export default function StageOne () {
             <MapOne animatedStyle={animatedMap} styleSheet={mapOneStyle.map} />
             <MapOne animatedStyle={animatedMapTwo} styleSheet={mapTreeStyle.map} />
             <MapOne animatedStyle={animatedMapTree} styleSheet={mapTwoStyle.map} />
+            <BicylePath animatedStyle={animatedBicyclePath} styleSheet={bicyclePathObjStyle.bicycle} />
+            <BicylePath animatedStyle={animatedBicycleTwoPath} styleSheet={bicyclePathTwoObjStyle.bicycle} />
 
             {/* OBSTACLE ELEMENTS */}
             <Obstacle animatedStyle={animatedObstacle} styleSheet={obstacleOneStyle.obstacle} />

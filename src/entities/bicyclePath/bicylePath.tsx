@@ -1,17 +1,18 @@
 // React native
-import { StyleProp, ImageStyle } from "react-native";
-// Animated
-import Animated, { useSharedValue } from "react-native-reanimated";
+import { StyleProp, ImageStyle } from "react-native"
+// Reanimated
+import Animated, { useSharedValue } from "react-native-reanimated"
 
 // Type
 type PropsType = {
     animatedStyle: AnimatedStyleType,
     styleSheet: StyleProp<ImageStyle>
 };
-export default function MapOne ({ animatedStyle, styleSheet }: PropsType) {
+
+export default function BicylePath ({ animatedStyle, styleSheet }: PropsType) {
     return (
         <Animated.Image
-            source={require('@/assets/game/maps/map-one.jpg')}
+            source={require('@/assets/game/maps/bicycle-path.jpg')}
             style={
                 [
                     styleSheet,
@@ -19,14 +20,15 @@ export default function MapOne ({ animatedStyle, styleSheet }: PropsType) {
                 ]
             }
         />
-    );
+    )
 }
 
-// Obstacle data
-export const MapOneData = (
+// BicyclePatch data
+export const BicyclePatchData = (
     setX = 0,
     setY = 0,
-    setWidth = 1024,
+    // setWidth = 140,
+    setWidth = 80,
     setHeight = 1536
 ) => {
     return {
@@ -35,4 +37,4 @@ export const MapOneData = (
         width: useSharedValue(setWidth),
         height: useSharedValue(setHeight)
     }
-};
+}
