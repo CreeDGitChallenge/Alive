@@ -14,7 +14,7 @@ export const movementAndResetMap = (
     bicyclePath: ObjectsType,
     bicyclePathTwo: ObjectsType,
     screenHeight: number,
-    SPEED: number,
+    SPEED: SharedValue<number>,
     delta: number
 ) => {
     'worklet';
@@ -25,21 +25,27 @@ export const movementAndResetMap = (
         const gap = map.y.value - screenHeight;
 
         // Apply Reset on map
-        mapTwo.y.value = (-screenHeight) + (SPEED * delta) + gap;
-        map.y.value = (SPEED * delta) + gap;
+        mapTwo.y.value = (-screenHeight) + (SPEED.value * delta) + gap;
+        map.y.value = (SPEED.value * delta) + gap;
 
         // Apply Reset on bicycle path
-        bicyclePathTwo.y.value = (-screenHeight) +(SPEED * delta) + gap;
-        bicyclePath.y.value = (SPEED * delta) + gap;
+        bicyclePathTwo.y.value = (-screenHeight) +(SPEED.value * delta) + gap;
+        bicyclePath.y.value = (SPEED.value * delta) + gap;
+
+        // Up game SPEED.value
+        if (SPEED.value < 1600) {
+            SPEED.value += 20;
+            console.log(SPEED.value)
+        }
 
     // Maps movements
     } else {
         // Apply scroll
         // Map
-        map.y.value += SPEED * delta;
-        mapTwo.y.value += SPEED * delta;
+        map.y.value += SPEED.value * delta;
+        mapTwo.y.value += SPEED.value * delta;
         // Bicycle path
-        bicyclePath.y.value += SPEED * delta;
-        bicyclePathTwo.y.value += SPEED * delta;
+        bicyclePath.y.value += SPEED.value * delta;
+        bicyclePathTwo.y.value += SPEED.value * delta;
     }
 }

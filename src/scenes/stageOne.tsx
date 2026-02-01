@@ -5,6 +5,9 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 // Reanimated
 import { useSharedValue, clamp, useFrameCallback } from "react-native-reanimated";
 
+// UI screens
+import GameOver from "@/src/ui/screens/gameOver";
+
 // Entities
 import Biker, { BikerData } from "@/src/entities/biker/biker";
 import Obstacle, { ObstacleData } from "@/src/entities/obstacle/obstacle";
@@ -39,7 +42,7 @@ export default function StageOne () {
     // ...
     const gameState = useSharedValue(1); // 1 -> Start the loop, 0 -> Stop the loop
     const lastFrameTime = useSharedValue<number | null>(null); // Needed for deltaTime calculation
-    const SPEED = 400; // Game speed
+    const SPEED = useSharedValue(400); // Game speed
 
     // Initialization Biker 
     // ...
@@ -131,7 +134,8 @@ export default function StageOne () {
     // Define Bicyle path 2 position display
     const animatedBicycleTwoPath = AnimatedGlobal(bicyclePathTwoObj.x, bicyclePathTwoObj.y);
 
-    // Game loop
+    // - GAME LOOP -
+    // -------------
     useFrameCallback((frame) => {
         'worklet';
 
@@ -150,6 +154,7 @@ export default function StageOne () {
         lastFrameTime.value = frame.timestamp;
 
         // - MAP AND BICYCLE PATH: RESET / MOVEMENT -
+        //  + Up speed value
         movementAndResetMap(
             mapOneObj, 
             mapTwoObj, 
@@ -162,11 +167,11 @@ export default function StageOne () {
 
         // - OBSTACLE: RESET / MOVEMENT -
         // Movement and reset for obstacle 1
-        movementAndResetObst(obstacleOneObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
+        movementAndResetObst(obstacleOneObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED.value * delta);
         // Movement and reset for obstacle 2
-        movementAndResetObst(obstacleTwoObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
+        movementAndResetObst(obstacleTwoObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED.value * delta);
         // Movement and reset for obstacle 3
-        movementAndResetObst(obstacleTreeObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED * delta);
+        movementAndResetObst(obstacleTreeObj, SCREEN_HEIGHT, OBSTACLEPOSITION, SPEED.value * delta);
 
         // Biker is collinding on obstacle one or obstacle two
         if (isColliding(bikerOneObj, obstacleOneObj) 
@@ -199,6 +204,9 @@ export default function StageOne () {
             <GestureDetector gesture={panGesture}>
                 <Cursor animatedStyle={animatedStyleCursor} styleSheet={cusrsorStyle.cursor} />
             </GestureDetector>
+
+            {/* UI SCREEN */}
+            {/* Game over */}
         </View>
     );
 }
