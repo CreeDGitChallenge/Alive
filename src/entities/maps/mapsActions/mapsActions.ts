@@ -35,7 +35,7 @@ export const movementAndResetMap = (
         // Up game SPEED.value
         if (SPEED.value < 1600) {
             SPEED.value += 20;
-            console.log(SPEED.value)
+            // console.log(SPEED.value)
         }
 
     // Maps movements

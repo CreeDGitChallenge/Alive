@@ -2,27 +2,38 @@
 import { StyleSheet } from "react-native"
 
 // Reanimated
-import Animated from "react-native-reanimated"
+import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated"
 
-export default function GameOver () {
+type Props = {
+    showGameOver: SharedValue<number>
+}
+export default function GameOver ({ showGameOver }: Props) {
+
+    // Define an animated style
+    const gameOverAnimated = useAnimatedStyle(() => ({
+        opacity: showGameOver.value ? 1 : 0,
+        pointerEvents: showGameOver.value ? "auto" : "none",
+    }));
+
     return (
         <Animated.Image
             source={require('@/assets/game/gameOver/game-over.png')}
             style={
                 [
                     styleSheet.gameOver,
-                    // animatedStyle
+                    gameOverAnimated
                 ]
             }
             resizeMode={'contain'}
         />
-    )
+    );
 }
 
+// Style
 const styleSheet = StyleSheet.create({
     gameOver: {
         position: 'absolute',
-        width: 200,
-        height: 200
+        width: 400,
+        height: 400
     }
 })

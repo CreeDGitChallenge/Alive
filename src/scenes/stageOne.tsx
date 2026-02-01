@@ -1,9 +1,9 @@
-// React
+// React native
 import { View, Dimensions } from "react-native";
 // Gesture handler
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 // Reanimated
-import { useSharedValue, clamp, useFrameCallback } from "react-native-reanimated";
+import { useSharedValue, clamp, useFrameCallback} from "react-native-reanimated";
 
 // UI screens
 import GameOver from "@/src/ui/screens/gameOver";
@@ -32,6 +32,7 @@ import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/mo
 import { movementAndResetMap } from "@/src/entities/maps/mapsActions/mapsActions";
 // Scripts
 import { isColliding } from "@/src/scripts/isColliding";
+// import { scheduleOnRN } from "react-native-worklets";
 
 export default function StageOne () {
     // Sreen dimensions
@@ -40,9 +41,14 @@ export default function StageOne () {
     
     // Game loop default value
     // ...
+    const restartState = useSharedValue(0)
     const gameState = useSharedValue(1); // 1 -> Start the loop, 0 -> Stop the loop
     const lastFrameTime = useSharedValue<number | null>(null); // Needed for deltaTime calculation
     const SPEED = useSharedValue(400); // Game speed
+
+    // UI
+    // ...
+    const showGameOver = useSharedValue(0);
 
     // Initialization Biker 
     // ...
@@ -98,20 +104,20 @@ export default function StageOne () {
     // Touch event (game player)
     // ...
     const panGesture = Gesture.Pan()
-        .onUpdate((event) => {
-            // Update positions
-            const nextX = offsetX.value + event.translationX;
-            const nextY = offsetY.value + event.translationY;
+    .onUpdate((event) => {
+        // Update positions
+        const nextX = offsetX.value + event.translationX;
+        const nextY = offsetY.value + event.translationY;
 
-            // Change the value on X or Y only if not higher than the max screen width/height
-            bikerOneObj.x.value = clamp(nextX, 0, SCREEN_WIDTH - bikerOneObj.width.value);
-            bikerOneObj.y.value = clamp(nextY, 0, SCREEN_HEIGHT - bikerOneObj.height.value);
-        })
-        .onEnd(() => {
-            // Get the bikerOneObj position to the end of touch
-            offsetX.value = bikerOneObj.x.value;
-            offsetY.value = bikerOneObj.y.value;
-        });
+        // Change the value on X or Y only if not higher than the max screen width/height
+        bikerOneObj.x.value = clamp(nextX, 0, SCREEN_WIDTH - bikerOneObj.width.value);
+        bikerOneObj.y.value = clamp(nextY, 0, SCREEN_HEIGHT - bikerOneObj.height.value);
+    })
+    .onEnd(() => {
+        // Get the bikerOneObj position to the end of touch
+        offsetX.value = bikerOneObj.x.value;
+        offsetY.value = bikerOneObj.y.value;
+    });
 
     // Animated style
     // ...
@@ -139,9 +145,19 @@ export default function StageOne () {
     useFrameCallback((frame) => {
         'worklet';
 
-        // Condition for stop the game
-        if (gameState.value === 0) return
+        if (restartState.value === 1) {
+            showGameOver.value = 0;
+            gameState.value = 1;
+            lastFrameTime.value = null;
+            SPEED.value = 400;
+            restartState.value = 0;
+        }
 
+        // Condition for stop the game
+        if (gameState.value === 0) {
+            lastFrameTime.value = frame.timestamp;
+            return;
+        }
          // Manual calculation of delta time
         if (lastFrameTime.value === null) {
             lastFrameTime.value = frame.timestamp;
@@ -178,9 +194,17 @@ export default function StageOne () {
             || isColliding(bikerOneObj, obstacleTwoObj)
             || isColliding(bikerOneObj, obstacleTreeObj)
         ) {
+            // Afficher game Over
+            showGameOver.value = 1;
             // Stop gameLoop
             gameState.value = 0;
         }
+    });
+    // - END GAME LOOP -
+    // -----------------
+    const tapGesture = Gesture.Tap()
+    .onStart(() => {
+        restartState.value = 1;
     });
 
     return (
@@ -207,6 +231,9 @@ export default function StageOne () {
 
             {/* UI SCREEN */}
             {/* Game over */}
+            <GestureDetector gesture={tapGesture}>
+                <GameOver showGameOver={showGameOver} />
+            </GestureDetector>
         </View>
     );
 }
