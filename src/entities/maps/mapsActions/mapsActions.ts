@@ -15,7 +15,8 @@ export const movementAndResetMap = (
     bicyclePathTwo: ObjectsType,
     screenHeight: number,
     SPEED: SharedValue<number>,
-    delta: number
+    delta: number,
+    playerScore: SharedValue<number>
 ) => {
     'worklet';
     // - MAP AND BICYCLE PATH: RESET / MOVEMENT -
@@ -37,6 +38,8 @@ export const movementAndResetMap = (
             SPEED.value += 20;
             // console.log(SPEED.value)
         }
+        // Up player score
+        playerScore.value += 20
 
     // Maps movements
     } else {

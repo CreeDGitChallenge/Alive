@@ -1,16 +1,21 @@
 // React
-import { StyleSheet } from "react-native"
+import { StyleProp, ImageStyle } from "react-native";
 
 // Reanimated
-import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated"
+import Animated, { SharedValue, useAnimatedStyle, useSharedValue } from "react-native-reanimated"
 
 type Props = {
-    showGameOver: SharedValue<number>
+    showGameOver: SharedValue<number>,
+    styleSheet: StyleProp<ImageStyle>
 }
-export default function GameOver ({ showGameOver }: Props) {
+export default function GameOver ({ showGameOver, styleSheet }: Props) {
 
     // Define an animated style
     const gameOverAnimated = useAnimatedStyle(() => ({
+        transform: [
+            { translateX: 0},
+            { translateY: 0}
+        ],
         opacity: showGameOver.value ? 1 : 0,
         pointerEvents: showGameOver.value ? "auto" : "none",
     }));
@@ -20,7 +25,7 @@ export default function GameOver ({ showGameOver }: Props) {
             source={require('@/assets/game/gameOver/game-over.png')}
             style={
                 [
-                    styleSheet.gameOver,
+                    styleSheet,
                     gameOverAnimated
                 ]
             }
@@ -29,11 +34,17 @@ export default function GameOver ({ showGameOver }: Props) {
     );
 }
 
-// Style
-const styleSheet = StyleSheet.create({
-    gameOver: {
-        position: 'absolute',
-        width: 400,
-        height: 400
+// Game over data
+export const GameOverData = (
+    setX = 0,
+    setY = 0,
+    setWidth = 400,
+    setHeight = 400
+) => {
+    return {
+        x: useSharedValue(setX),
+        y: useSharedValue(setY),
+        width: useSharedValue(setWidth),
+        height: useSharedValue(setHeight)
     }
-})
+};

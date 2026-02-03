@@ -1,4 +1,4 @@
-// React
+// React Native
 import { StyleSheet } from "react-native";
 
 // Reanimated
@@ -10,7 +10,7 @@ type MapType = {
     y: SharedValue<number>;
     width: SharedValue<number>;
     height: SharedValue<number>;
-}
+};
 
 export const styleSheetMap = (map: MapType) => {
     // Style

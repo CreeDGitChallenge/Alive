@@ -16,7 +16,7 @@ import MapOne, { MapOneData } from "@/src/entities/maps/mapOne";
 import BicylePath, { BicyclePatchData } from "@/src/entities/bicyclePath/bicylePath";
 
 // Entities animated
-import { AnimatedGlobal } from "../animated/animatedGlobal";
+import { AnimatedGlobal } from "@/src/animated/animatedGlobal";
 import { AnimatedCursor } from "@/src/entities/cursor/animatedCursor";
 
 // StyleSheet
@@ -25,6 +25,7 @@ import { styleSheetMap } from "@/src/entities/maps/styleSheetMap";
 import { styleSheetCursor } from "@/src/entities/cursor/styleSheetCursor";
 import { styleSheetBiker } from "@/src/entities/biker/styleSheetBiker";
 import { styleSheetBicycle } from "../entities/bicyclePath/styleSheetBicycle";
+import { styleSheetGameOver } from "../ui/screens/styleSheetGameOver";
 
 // Obstacle actions
 import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
@@ -32,31 +33,35 @@ import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/mo
 import { movementAndResetMap } from "@/src/entities/maps/mapsActions/mapsActions";
 // Scripts
 import { isColliding } from "@/src/scripts/isColliding";
-// import { scheduleOnRN } from "react-native-worklets";
 
 export default function StageOne () {
     // Sreen dimensions
     // ...
     const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
     
-    // Game loop default value
+    // Game loop default values
     // ...
     const restartState = useSharedValue(0)
     const gameState = useSharedValue(1); // 1 -> Start the loop, 0 -> Stop the loop
     const lastFrameTime = useSharedValue<number | null>(null); // Needed for deltaTime calculation
     const SPEED = useSharedValue(400); // Game speed
 
-    // UI
+    // Initialize UI
     // ...
+    const gameOverStyle = styleSheetGameOver(SCREEN_WIDTH, SCREEN_HEIGHT);
     const showGameOver = useSharedValue(0);
+    const playerScore = useSharedValue(5);
 
     // Initialization Biker 
     // ...
     const bikerOneObj = BikerData();
     const bikerStyle = styleSheetBiker(bikerOneObj);
+    // Define initial position Biker
+    const initialPositionBikerX = SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2;
+    const initialPositionBikerY = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
     // Redefine Biker X and Y
-    bikerOneObj.x.value = SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2;
-    bikerOneObj.y.value = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
+    bikerOneObj.x.value = initialPositionBikerX;
+    bikerOneObj.y.value = initialPositionBikerY;
     const offsetX = useSharedValue(SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2);
     const offsetY = useSharedValue(SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2);
 
@@ -145,12 +150,25 @@ export default function StageOne () {
     useFrameCallback((frame) => {
         'worklet';
 
+        // Reset game
         if (restartState.value === 1) {
             showGameOver.value = 0;
             gameState.value = 1;
             lastFrameTime.value = null;
             SPEED.value = 400;
             restartState.value = 0;
+            // Reset Biker
+            bikerOneObj.x.value = initialPositionBikerX;
+            bikerOneObj.y.value = initialPositionBikerY;
+            offsetX.value = SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2;
+            offsetY.value = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
+            // Reset obstacle
+            obstacleOneObj.x.value = 0;
+            obstacleOneObj.y.value = -SCREEN_HEIGHT / 3;
+            obstacleTwoObj.x.value = OBSTACLEPOSITION[2].x;
+            obstacleTwoObj.y.value = (-SCREEN_HEIGHT / 3)*2;
+            obstacleTreeObj.x.value = OBSTACLEPOSITION[0].x;
+            obstacleTreeObj.y.value = (-SCREEN_HEIGHT / 3)*3;
         }
 
         // Condition for stop the game
@@ -163,7 +181,7 @@ export default function StageOne () {
             lastFrameTime.value = frame.timestamp;
             return;
         }
-        // Delta time
+        // Delta time (time between two frame)
         const delta = Math.min(
             (frame.timestamp - lastFrameTime.value) / 1000, 0.05 // max 50 ms
         );
@@ -178,7 +196,8 @@ export default function StageOne () {
             bicyclePathTwoObj,
             SCREEN_HEIGHT,
             SPEED,
-            delta
+            delta,
+            playerScore
         );
 
         // - OBSTACLE: RESET / MOVEMENT -
@@ -230,9 +249,14 @@ export default function StageOne () {
             </GestureDetector>
 
             {/* UI SCREEN */}
+            {/* User score */}
+            {/* Change this to an Animated.Text componant */}
+            {/* <Text style={{color: 'white', fontSize: 20, width: '100%', borderColor: 'white', borderWidth: 3, textAlign: 'right'}}>
+                    {playerScore.value}
+                </Text> */}
             {/* Game over */}
             <GestureDetector gesture={tapGesture}>
-                <GameOver showGameOver={showGameOver} />
+                <GameOver showGameOver={showGameOver} styleSheet={gameOverStyle.gameOver} />
             </GestureDetector>
         </View>
     );
