@@ -1,12 +1,15 @@
+// React
+import { useState } from "react";
 // React native
-import { View, Dimensions } from "react-native";
+import { View, Text, Dimensions, Button } from "react-native";
 // Gesture handler
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 // Reanimated
-import { useSharedValue, clamp, useFrameCallback} from "react-native-reanimated";
+import { useSharedValue, clamp, useFrameCallback, useAnimatedReaction} from "react-native-reanimated";
 
 // UI screens
-import GameOver from "@/src/ui/screens/gameOver";
+import GameOver from "@/src/ui/screens/gameOver/gameOver";
+import PlayerScore from "@/src/ui/screens/playerScore/playerScore"
 
 // Entities
 import Biker, { BikerData } from "@/src/entities/biker/biker";
@@ -24,8 +27,8 @@ import { styleSheetObstacle } from "@/src/entities/obstacle/styleSheetObstacle";
 import { styleSheetMap } from "@/src/entities/maps/styleSheetMap";
 import { styleSheetCursor } from "@/src/entities/cursor/styleSheetCursor";
 import { styleSheetBiker } from "@/src/entities/biker/styleSheetBiker";
-import { styleSheetBicycle } from "../entities/bicyclePath/styleSheetBicycle";
-import { styleSheetGameOver } from "../ui/screens/styleSheetGameOver";
+import { styleSheetBicycle } from "@/src/entities/bicyclePath/styleSheetBicycle";
+import { styleSheetGameOver } from "@/src/ui/screens/gameOver/styleSheetGameOver";
 
 // Obstacle actions
 import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
@@ -33,6 +36,7 @@ import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/mo
 import { movementAndResetMap } from "@/src/entities/maps/mapsActions/mapsActions";
 // Scripts
 import { isColliding } from "@/src/scripts/isColliding";
+import { runOnJS } from "react-native-worklets";
 
 export default function StageOne () {
     // Sreen dimensions
@@ -50,7 +54,7 @@ export default function StageOne () {
     // ...
     const gameOverStyle = styleSheetGameOver(SCREEN_WIDTH, SCREEN_HEIGHT);
     const showGameOver = useSharedValue(0);
-    const playerScore = useSharedValue(5);
+    const playerScore = useSharedValue(0);
 
     // Initialization Biker 
     // ...
@@ -152,11 +156,14 @@ export default function StageOne () {
 
         // Reset game
         if (restartState.value === 1) {
-            showGameOver.value = 0;
+            // Game loop
             gameState.value = 1;
             lastFrameTime.value = null;
             SPEED.value = 400;
             restartState.value = 0;
+            // UI
+            showGameOver.value = 0;
+            playerScore.value = 0
             // Reset Biker
             bikerOneObj.x.value = initialPositionBikerX;
             bikerOneObj.y.value = initialPositionBikerY;
@@ -221,6 +228,8 @@ export default function StageOne () {
     });
     // - END GAME LOOP -
     // -----------------
+
+    // Restart input
     const tapGesture = Gesture.Tap()
     .onStart(() => {
         restartState.value = 1;
@@ -250,10 +259,8 @@ export default function StageOne () {
 
             {/* UI SCREEN */}
             {/* User score */}
-            {/* Change this to an Animated.Text componant */}
-            {/* <Text style={{color: 'white', fontSize: 20, width: '100%', borderColor: 'white', borderWidth: 3, textAlign: 'right'}}>
-                    {playerScore.value}
-                </Text> */}
+            <PlayerScore score={playerScore} />
+            
             {/* Game over */}
             <GestureDetector gesture={tapGesture}>
                 <GameOver showGameOver={showGameOver} styleSheet={gameOverStyle.gameOver} />
