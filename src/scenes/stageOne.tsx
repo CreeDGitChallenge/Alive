@@ -1,12 +1,13 @@
-// React
+// React native
 import { View, Dimensions } from "react-native";
 // Gesture handler
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 // Reanimated
-import { useSharedValue, clamp, useFrameCallback } from "react-native-reanimated";
+import { useSharedValue, clamp, useFrameCallback} from "react-native-reanimated";
 
 // UI screens
-import GameOver from "@/src/ui/screens/gameOver";
+import GameOver from "@/src/ui/screens/gameOver/gameOver";
+import PlayerScore from "@/src/ui/screens/playerScore/playerScore"
 
 // Entities
 import Biker, { BikerData } from "@/src/entities/biker/biker";
@@ -16,7 +17,7 @@ import MapOne, { MapOneData } from "@/src/entities/maps/mapOne";
 import BicylePath, { BicyclePatchData } from "@/src/entities/bicyclePath/bicylePath";
 
 // Entities animated
-import { AnimatedGlobal } from "../animated/animatedGlobal";
+import { AnimatedGlobal } from "@/src/animated/animatedGlobal";
 import { AnimatedCursor } from "@/src/entities/cursor/animatedCursor";
 
 // StyleSheet
@@ -24,7 +25,8 @@ import { styleSheetObstacle } from "@/src/entities/obstacle/styleSheetObstacle";
 import { styleSheetMap } from "@/src/entities/maps/styleSheetMap";
 import { styleSheetCursor } from "@/src/entities/cursor/styleSheetCursor";
 import { styleSheetBiker } from "@/src/entities/biker/styleSheetBiker";
-import { styleSheetBicycle } from "../entities/bicyclePath/styleSheetBicycle";
+import { styleSheetBicycle } from "@/src/entities/bicyclePath/styleSheetBicycle";
+import { styleSheetGameOver } from "@/src/ui/screens/gameOver/styleSheetGameOver";
 
 // Obstacle actions
 import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
@@ -38,19 +40,29 @@ export default function StageOne () {
     // ...
     const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
     
-    // Game loop default value
+    // Game loop default values
     // ...
+    const restartState = useSharedValue(0)
     const gameState = useSharedValue(1); // 1 -> Start the loop, 0 -> Stop the loop
     const lastFrameTime = useSharedValue<number | null>(null); // Needed for deltaTime calculation
     const SPEED = useSharedValue(400); // Game speed
+
+    // Initialize UI
+    // ...
+    const gameOverStyle = styleSheetGameOver(SCREEN_WIDTH, SCREEN_HEIGHT);
+    const showGameOver = useSharedValue(0);
+    const playerScore = useSharedValue(0);
 
     // Initialization Biker 
     // ...
     const bikerOneObj = BikerData();
     const bikerStyle = styleSheetBiker(bikerOneObj);
+    // Define initial position Biker
+    const initialPositionBikerX = SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2;
+    const initialPositionBikerY = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
     // Redefine Biker X and Y
-    bikerOneObj.x.value = SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2;
-    bikerOneObj.y.value = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
+    bikerOneObj.x.value = initialPositionBikerX;
+    bikerOneObj.y.value = initialPositionBikerY;
     const offsetX = useSharedValue(SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2);
     const offsetY = useSharedValue(SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2);
 
@@ -98,20 +110,20 @@ export default function StageOne () {
     // Touch event (game player)
     // ...
     const panGesture = Gesture.Pan()
-        .onUpdate((event) => {
-            // Update positions
-            const nextX = offsetX.value + event.translationX;
-            const nextY = offsetY.value + event.translationY;
+    .onUpdate((event) => {
+        // Update positions
+        const nextX = offsetX.value + event.translationX;
+        const nextY = offsetY.value + event.translationY;
 
-            // Change the value on X or Y only if not higher than the max screen width/height
-            bikerOneObj.x.value = clamp(nextX, 0, SCREEN_WIDTH - bikerOneObj.width.value);
-            bikerOneObj.y.value = clamp(nextY, 0, SCREEN_HEIGHT - bikerOneObj.height.value);
-        })
-        .onEnd(() => {
-            // Get the bikerOneObj position to the end of touch
-            offsetX.value = bikerOneObj.x.value;
-            offsetY.value = bikerOneObj.y.value;
-        });
+        // Change the value on X or Y only if not higher than the max screen width/height
+        bikerOneObj.x.value = clamp(nextX, 0, SCREEN_WIDTH - bikerOneObj.width.value);
+        bikerOneObj.y.value = clamp(nextY, 0, SCREEN_HEIGHT - bikerOneObj.height.value);
+    })
+    .onEnd(() => {
+        // Get the bikerOneObj position to the end of touch
+        offsetX.value = bikerOneObj.x.value;
+        offsetY.value = bikerOneObj.y.value;
+    });
 
     // Animated style
     // ...
@@ -139,15 +151,41 @@ export default function StageOne () {
     useFrameCallback((frame) => {
         'worklet';
 
-        // Condition for stop the game
-        if (gameState.value === 0) return
+        // Reset game
+        if (restartState.value === 1) {
+            // Game loop
+            gameState.value = 1;
+            lastFrameTime.value = null;
+            SPEED.value = 400;
+            restartState.value = 0;
+            // UI
+            showGameOver.value = 0;
+            playerScore.value = 0
+            // Reset Biker
+            bikerOneObj.x.value = initialPositionBikerX;
+            bikerOneObj.y.value = initialPositionBikerY;
+            offsetX.value = SCREEN_WIDTH / 2 - bikerOneObj.width.value / 2;
+            offsetY.value = SCREEN_HEIGHT / 2 - bikerOneObj.height.value / 2;
+            // Reset obstacle
+            obstacleOneObj.x.value = 0;
+            obstacleOneObj.y.value = -SCREEN_HEIGHT / 3;
+            obstacleTwoObj.x.value = OBSTACLEPOSITION[2].x;
+            obstacleTwoObj.y.value = (-SCREEN_HEIGHT / 3)*2;
+            obstacleTreeObj.x.value = OBSTACLEPOSITION[0].x;
+            obstacleTreeObj.y.value = (-SCREEN_HEIGHT / 3)*3;
+        }
 
+        // Condition for stop the game
+        if (gameState.value === 0) {
+            lastFrameTime.value = frame.timestamp;
+            return;
+        }
          // Manual calculation of delta time
         if (lastFrameTime.value === null) {
             lastFrameTime.value = frame.timestamp;
             return;
         }
-        // Delta time
+        // Delta time (time between two frame)
         const delta = Math.min(
             (frame.timestamp - lastFrameTime.value) / 1000, 0.05 // max 50 ms
         );
@@ -162,7 +200,8 @@ export default function StageOne () {
             bicyclePathTwoObj,
             SCREEN_HEIGHT,
             SPEED,
-            delta
+            delta,
+            playerScore
         );
 
         // - OBSTACLE: RESET / MOVEMENT -
@@ -178,9 +217,19 @@ export default function StageOne () {
             || isColliding(bikerOneObj, obstacleTwoObj)
             || isColliding(bikerOneObj, obstacleTreeObj)
         ) {
+            // Afficher game Over
+            showGameOver.value = 1;
             // Stop gameLoop
             gameState.value = 0;
         }
+    });
+    // - END GAME LOOP -
+    // -----------------
+
+    // Restart input
+    const tapGesture = Gesture.Tap()
+    .onStart(() => {
+        restartState.value = 1;
     });
 
     return (
@@ -206,7 +255,13 @@ export default function StageOne () {
             </GestureDetector>
 
             {/* UI SCREEN */}
+            {/* User score */}
+            {/* <PlayerScore score={playerScore} /> */}
+            
             {/* Game over */}
+            <GestureDetector gesture={tapGesture}>
+                <GameOver showGameOver={showGameOver} styleSheet={gameOverStyle.gameOver} />
+            </GestureDetector>
         </View>
     );
 }
