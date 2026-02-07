@@ -1,11 +1,9 @@
-// React
-import { useState } from "react";
 // React native
-import { View, Text, Dimensions, Button } from "react-native";
+import { View, Dimensions } from "react-native";
 // Gesture handler
 import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 // Reanimated
-import { useSharedValue, clamp, useFrameCallback, useAnimatedReaction} from "react-native-reanimated";
+import { useSharedValue, clamp, useFrameCallback} from "react-native-reanimated";
 
 // UI screens
 import GameOver from "@/src/ui/screens/gameOver/gameOver";
@@ -36,7 +34,6 @@ import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/mo
 import { movementAndResetMap } from "@/src/entities/maps/mapsActions/mapsActions";
 // Scripts
 import { isColliding } from "@/src/scripts/isColliding";
-import { runOnJS } from "react-native-worklets";
 
 export default function StageOne () {
     // Sreen dimensions
@@ -259,7 +256,7 @@ export default function StageOne () {
 
             {/* UI SCREEN */}
             {/* User score */}
-            <PlayerScore score={playerScore} />
+            {/* <PlayerScore score={playerScore} /> */}
             
             {/* Game over */}
             <GestureDetector gesture={tapGesture}>
