@@ -141,6 +141,12 @@ export default function StageOne () {
         offsetX.value = bikerOneObj.x.value;
         offsetY.value = bikerOneObj.y.value;
     });
+    
+    // Restart input
+    const tapGesture = Gesture.Tap()
+    .onStart(() => {
+        restartState.value = 1;
+    });
 
     // Animated style
     // ...
@@ -293,12 +299,6 @@ export default function StageOne () {
     });
     // - END GAME LOOP -
     // -----------------
-
-    // Restart input
-    const tapGesture = Gesture.Tap()
-    .onStart(() => {
-        restartState.value = 1;
-    });
 
     return (
         <View>
