@@ -7,7 +7,7 @@ import { useSharedValue, clamp, useFrameCallback} from "react-native-reanimated"
 
 // UI screens
 import GameOver from "@/src/ui/screens/gameOver/gameOver";
-import PlayerScore from "@/src/ui/screens/playerScore/playerScore"
+import ScorePlayer, { DataScorePlayer } from "@/src/ui/screens/scorePlayer/scorePlayer"
 
 // Entities
 import Biker, { BikerData } from "@/src/entities/biker/biker";
@@ -16,9 +16,9 @@ import Cursor, { CursorData } from "@/src/entities/cursor/cursor";
 import MapOne, { MapOneData } from "@/src/entities/maps/mapOne";
 import BicylePath, { BicyclePatchData } from "@/src/entities/bicyclePath/bicylePath";
 
-// Entities animated
+// Animated
 import { AnimatedGlobal } from "@/src/animated/animatedGlobal";
-import { AnimatedCursor } from "@/src/entities/cursor/animatedCursor";
+import { AnimatedCursor } from "@/src/animated/animatedCursor";
 
 // StyleSheet
 import { styleSheetObstacle } from "@/src/entities/obstacle/styleSheetObstacle";
@@ -27,6 +27,7 @@ import { styleSheetCursor } from "@/src/entities/cursor/styleSheetCursor";
 import { styleSheetBiker } from "@/src/entities/biker/styleSheetBiker";
 import { styleSheetBicycle } from "@/src/entities/bicyclePath/styleSheetBicycle";
 import { styleSheetGameOver } from "@/src/ui/screens/gameOver/styleSheetGameOver";
+import { styleSheetScorePlayer } from "@/src/ui/screens/scorePlayer/styleSheetScorePlayer";
 
 // Obstacle actions
 import { movementAndResetObst } from "@/src/entities/obstacle/obstacleActions/movResetObstacle";
@@ -49,11 +50,25 @@ export default function StageOne () {
 
     // Initialize UI
     // ...
+    // Game over
     const gameOverStyle = styleSheetGameOver(SCREEN_WIDTH, SCREEN_HEIGHT);
     const showGameOver = useSharedValue(0);
-    const playerScore = useSharedValue(0);
-
-    // Initialization Biker 
+    // Player score
+    const scorePlayer = useSharedValue(0);
+    // Digit one
+    const dataScoreDigitOne = DataScorePlayer((SCREEN_WIDTH / 2) - (30/2), 10);
+    const digitOnePrev = useSharedValue(0);
+    const scorePlayerStyle = styleSheetScorePlayer(dataScoreDigitOne[0].width, dataScoreDigitOne[0].height);
+    // Digit two
+    const dataScoreDigitTwo = DataScorePlayer(dataScoreDigitOne[0].x.value - dataScoreDigitOne[0].width.value, dataScoreDigitOne[0].y.value);
+    const digitTwoPrev = useSharedValue(0)
+    const scorePlayerTwoStyle = styleSheetScorePlayer(dataScoreDigitTwo[0].width, dataScoreDigitTwo[0].height);
+    // Digit tree
+    const dataScoreDigitTree = DataScorePlayer(dataScoreDigitTwo[0].x.value - dataScoreDigitTwo[0].width.value, dataScoreDigitTwo[0].y.value);
+    const digitTreePrev = useSharedValue(0)
+    const scorePlayerTreeStyle = styleSheetScorePlayer(dataScoreDigitOne[0].width, dataScoreDigitOne[0].height);
+    
+    // Initialization Biker
     // ...
     const bikerOneObj = BikerData();
     const bikerStyle = styleSheetBiker(bikerOneObj);
@@ -77,6 +92,8 @@ export default function StageOne () {
     const mapOneStyle = styleSheetMap(mapOneObj);
     const mapTwoObj = MapOneData(undefined, -SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
     const mapTwoStyle = styleSheetMap(mapTwoObj);
+    const mapTreeObj = MapOneData(undefined, -SCREEN_HEIGHT*2, SCREEN_WIDTH, SCREEN_HEIGHT);
+    const mapTreeStyle = styleSheetMap(mapTreeObj);
 
     // Initialize Bicycle path
     // ...
@@ -141,6 +158,8 @@ export default function StageOne () {
     const animatedMap = AnimatedGlobal(mapOneObj.x, mapOneObj.y);
     // Define Map 2 position display
     const animatedMapTwo = AnimatedGlobal(mapTwoObj.x, mapTwoObj.y);
+    // Define Map 3 position display
+    const animatedMapTree = AnimatedGlobal(mapTreeObj.x, mapTreeObj.y);
     // Define Bicyle path 1 position display
     const animatedBicyclePath = AnimatedGlobal(bicyclePathObj.x, bicyclePathObj.y);
     // Define Bicyle path 2 position display
@@ -160,7 +179,8 @@ export default function StageOne () {
             restartState.value = 0;
             // UI
             showGameOver.value = 0;
-            playerScore.value = 0
+            scorePlayer.value = 0
+
             // Reset Biker
             bikerOneObj.x.value = initialPositionBikerX;
             bikerOneObj.y.value = initialPositionBikerY;
@@ -173,6 +193,16 @@ export default function StageOne () {
             obstacleTwoObj.y.value = (-SCREEN_HEIGHT / 3)*2;
             obstacleTreeObj.x.value = OBSTACLEPOSITION[0].x;
             obstacleTreeObj.y.value = (-SCREEN_HEIGHT / 3)*3;
+            // Reset score
+            dataScoreDigitOne.forEach((element)=> {
+                element.visibility.value = 0;
+            });
+            dataScoreDigitTwo.forEach((element)=> {
+                element.visibility.value = 0;
+            });
+            dataScoreDigitTree.forEach((element)=> {
+                element.visibility.value = 0;
+            });
         }
 
         // Condition for stop the game
@@ -180,7 +210,7 @@ export default function StageOne () {
             lastFrameTime.value = frame.timestamp;
             return;
         }
-         // Manual calculation of delta time
+        // Manual calculation of delta time
         if (lastFrameTime.value === null) {
             lastFrameTime.value = frame.timestamp;
             return;
@@ -196,12 +226,13 @@ export default function StageOne () {
         movementAndResetMap(
             mapOneObj, 
             mapTwoObj, 
+            mapTreeObj, 
             bicyclePathObj,
             bicyclePathTwoObj,
             SCREEN_HEIGHT,
             SPEED,
             delta,
-            playerScore
+            scorePlayer
         );
 
         // - OBSTACLE: RESET / MOVEMENT -
@@ -222,6 +253,43 @@ export default function StageOne () {
             // Stop gameLoop
             gameState.value = 0;
         }
+
+        // - SCORE PLAYER -
+        // First digit
+        const scorePlayerString = scorePlayer.value.toString();
+        const scorePlayerLength = scorePlayerString.length;
+        const firstDigit = parseInt(scorePlayerString[scorePlayerLength-1], 10);
+
+        // Old way
+        // const firstDigit = scorePlayer.value % 10;
+        // Hide first previous digit
+        dataScoreDigitOne[digitOnePrev.value].visibility.value = 0;
+        // Show digit updated
+        dataScoreDigitOne[firstDigit].visibility.value = 1;
+        // Updated previous digit displayed
+        digitOnePrev.value = firstDigit;
+
+        // Second digit
+        if (scorePlayerLength > 1) {
+            const secondDigit = parseInt(scorePlayerString[scorePlayerLength-2], 10);
+            // Hide first previous digit
+            dataScoreDigitTwo[digitTwoPrev.value].visibility.value = 0;
+            // Show digit updated
+            dataScoreDigitTwo[secondDigit].visibility.value = 1;
+            // Updated previous digit displayed
+            digitTwoPrev.value = secondDigit;
+        }
+
+        // Third digit
+        if (scorePlayerLength > 2) {
+            const thirdDigit = parseInt(scorePlayerString[scorePlayerLength-3], 10);
+            // Hide first previous digit
+            dataScoreDigitTree[digitTreePrev.value].visibility.value = 0;
+            // Show digit updated
+            dataScoreDigitTree[thirdDigit].visibility.value = 1;
+            // // Updated previous digit displayed
+            digitTreePrev.value = thirdDigit;
+        }
     });
     // - END GAME LOOP -
     // -----------------
@@ -237,7 +305,7 @@ export default function StageOne () {
             {/* MAP ELEMENTS*/}
             <MapOne animatedStyle={animatedMap} styleSheet={mapOneStyle.map} />
             <MapOne animatedStyle={animatedMapTwo} styleSheet={mapTwoStyle.map} />
-            {/* <MapOne animatedStyle={animatedMapTree} styleSheet={mapTreeStyle.map} /> */}
+            <MapOne animatedStyle={animatedMapTree} styleSheet={mapTreeStyle.map} />
             <BicylePath animatedStyle={animatedBicyclePath} styleSheet={bicyclePathObjStyle.bicycle} />
             <BicylePath animatedStyle={animatedBicycleTwoPath} styleSheet={bicyclePathTwoObjStyle.bicycle} />
 
@@ -256,8 +324,12 @@ export default function StageOne () {
 
             {/* UI SCREEN */}
             {/* User score */}
-            {/* <PlayerScore score={playerScore} /> */}
-            
+            {/* First digit */}
+            <ScorePlayer scoreData={dataScoreDigitOne} styleSheet={scorePlayerStyle.playerScore} />
+            {/* Second digit */}
+            <ScorePlayer scoreData={dataScoreDigitTwo} styleSheet={scorePlayerTwoStyle.playerScore} />
+            {/* Third digit */}
+            <ScorePlayer scoreData={dataScoreDigitTree} styleSheet={scorePlayerTreeStyle.playerScore} />
             {/* Game over */}
             <GestureDetector gesture={tapGesture}>
                 <GameOver showGameOver={showGameOver} styleSheet={gameOverStyle.gameOver} />

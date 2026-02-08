@@ -11,6 +11,7 @@ type ObjectsType = {
 export const movementAndResetMap = (
     map: ObjectsType,
     mapTwo: ObjectsType,
+    mapTree: ObjectsType,
     bicyclePath: ObjectsType,
     bicyclePathTwo: ObjectsType,
     screenHeight: number,
@@ -26,6 +27,7 @@ export const movementAndResetMap = (
         const gap = map.y.value - screenHeight;
 
         // Apply Reset on map
+        mapTree.y.value = (-screenHeight)*2 + (SPEED.value * delta) + gap;
         mapTwo.y.value = (-screenHeight) + (SPEED.value * delta) + gap;
         map.y.value = (SPEED.value * delta) + gap;
 
@@ -35,7 +37,7 @@ export const movementAndResetMap = (
 
         // Up game SPEED.value
         if (SPEED.value < 1600) {
-            // SPEED.value += 20;
+            SPEED.value += 20;
         }
         // Up player score
         playerScore.value += 1
@@ -46,6 +48,7 @@ export const movementAndResetMap = (
         // Map
         map.y.value += SPEED.value * delta;
         mapTwo.y.value += SPEED.value * delta;
+        mapTree.y.value += SPEED.value * delta;
         // Bicycle path
         bicyclePath.y.value += SPEED.value * delta;
         bicyclePathTwo.y.value += SPEED.value * delta;
