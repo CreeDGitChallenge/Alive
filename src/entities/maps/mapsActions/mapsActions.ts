@@ -37,7 +37,7 @@ export const movementAndResetMap = (
 
         // Up game SPEED.value
         if (SPEED.value < 1600) {
-            // SPEED.value += 20;
+            SPEED.value += 20;
         }
         // Up player score
         playerScore.value += 1

@@ -63,7 +63,11 @@ export default function StageOne () {
     const dataScoreDigitTwo = DataScorePlayer(dataScoreDigitOne[0].x.value - dataScoreDigitOne[0].width.value, dataScoreDigitOne[0].y.value);
     const digitTwoPrev = useSharedValue(0)
     const scorePlayerTwoStyle = styleSheetScorePlayer(dataScoreDigitTwo[0].width, dataScoreDigitTwo[0].height);
-
+    // Digit tree
+    const dataScoreDigitTree = DataScorePlayer(dataScoreDigitTwo[0].x.value - dataScoreDigitTwo[0].width.value, dataScoreDigitTwo[0].y.value);
+    const digitTreePrev = useSharedValue(0)
+    const scorePlayerTreeStyle = styleSheetScorePlayer(dataScoreDigitOne[0].width, dataScoreDigitOne[0].height);
+    
     // Initialization Biker
     // ...
     const bikerOneObj = BikerData();
@@ -196,6 +200,9 @@ export default function StageOne () {
             dataScoreDigitTwo.forEach((element)=> {
                 element.visibility.value = 0;
             });
+            dataScoreDigitTree.forEach((element)=> {
+                element.visibility.value = 0;
+            });
         }
 
         // Condition for stop the game
@@ -272,6 +279,17 @@ export default function StageOne () {
             // Updated previous digit displayed
             digitTwoPrev.value = secondDigit;
         }
+
+        // Third digit
+        if (scorePlayerLength > 2) {
+            const thirdDigit = parseInt(scorePlayerString[scorePlayerLength-3], 10);
+            // Hide first previous digit
+            dataScoreDigitTree[digitTreePrev.value].visibility.value = 0;
+            // Show digit updated
+            dataScoreDigitTree[thirdDigit].visibility.value = 1;
+            // // Updated previous digit displayed
+            digitTreePrev.value = thirdDigit;
+        }
     });
     // - END GAME LOOP -
     // -----------------
@@ -310,7 +328,8 @@ export default function StageOne () {
             <ScorePlayer scoreData={dataScoreDigitOne} styleSheet={scorePlayerStyle.playerScore} />
             {/* Second digit */}
             <ScorePlayer scoreData={dataScoreDigitTwo} styleSheet={scorePlayerTwoStyle.playerScore} />
-            
+            {/* Third digit */}
+            <ScorePlayer scoreData={dataScoreDigitTree} styleSheet={scorePlayerTreeStyle.playerScore} />
             {/* Game over */}
             <GestureDetector gesture={tapGesture}>
                 <GameOver showGameOver={showGameOver} styleSheet={gameOverStyle.gameOver} />
