@@ -94,5 +94,5 @@ npm start
 - Prepare for app store deployment
 
 ## Author
-Project created by Matthieu Clio and collaborator  
+Project created by Matthieu Clio and Pierre CLIO  
 React Native & mobile game development
