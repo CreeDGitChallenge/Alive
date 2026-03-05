@@ -35,7 +35,7 @@ This project was an opportunity to combine **React Native skills, gameplay logic
 You can run the game locally using Expo. The project is intended to be opened in:
 - **Expo Go** (mobile)
 - Android emulator / iOS simulator  
-The game is not currently published to a store but is playable via development builds. :contentReference[oaicite:2]{index=2}
+The game is not currently published to a store but is playable via development builds.
 
 ## Installation and setup
 
