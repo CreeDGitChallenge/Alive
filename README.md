@@ -57,7 +57,7 @@ npm install
 ```bash
 npm start
 ```
-4.In the Expo interface, choose how to run the app:  
+4. In the Expo interface, choose how to run the app:  
 - Android emulator
 - iOS simulator
 - Expo Go on physical device
